@@ -4,8 +4,8 @@ import java.util.*;
 public class SlangDictionary {
     //HashMap implementation
     //Each element is a <key,values> equivalent to <slang word, its meaning>
-    private HashMap<String, String[]> sDict = new HashMap<String, String[]>();
-    private HashMap<String, String[]> logs = new HashMap<String, String[]>();
+    private HashMap<String, ArrayList<String>> sDict = new HashMap<String, ArrayList<String>>();
+    private HashMap<String, ArrayList<String>> logs = new HashMap<String, ArrayList<String>>();
 
     //Search by slang word, or by definition
     //Returns a string
