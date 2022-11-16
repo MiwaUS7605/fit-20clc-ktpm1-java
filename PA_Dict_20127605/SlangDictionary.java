@@ -25,7 +25,41 @@ public class SlangDictionary {
     }
 
     //Load the slang dictionary file
-    public Boolean loadSlangDictionary(String filename) {
+    public Boolean loadSlangDictionary(String filename) throws IOException {
+        try {
+            FileReader fr = new FileReader(filename);
+            BufferedReader br = new BufferedReader(fr);
+            String line_info = br.readLine();
+            String key = "";
+
+            while (line_info != null) {
+                String[] info = line_info.split("`");
+                key = info[0];
+                ArrayList<String> defi = new ArrayList<String>();
+                defi.add(info[1]);
+                String line_info_next = br.readLine();
+                if (line_info_next != null) {
+                    String[] info_next = line_info_next.split("`");
+
+                    while (info_next.length == 1) {
+                        defi.add(info_next[0]);
+                        line_info_next = br.readLine();
+                        info_next = line_info_next.split("`");
+                    }
+                }
+                this.sDict.put(key,defi);
+                if (defi.size() > 1) {
+                    System.out.println(defi.size());
+                }
+                line_info = line_info_next;
+            }
+            br.close();
+            return true;
+        }
+        catch (IOException exc) {
+            System.out.println(exc.toString());
+        }
+
         return false;
     }
 
