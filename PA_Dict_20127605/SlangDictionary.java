@@ -31,12 +31,15 @@ public class SlangDictionary {
             BufferedReader br = new BufferedReader(fr);
             String line_info = br.readLine();
             String key = "";
-
+            
             while (line_info != null) {
                 String[] info = line_info.split("`");
                 key = info[0];
                 ArrayList<String> defi = new ArrayList<String>();
-                defi.add(info[1]);
+                String[] sub_defi = info[1].split("\\| ");
+                for (String iter:sub_defi) {
+                    defi.add(iter);
+                }
                 String line_info_next = br.readLine();
                 if (line_info_next != null) {
                     String[] info_next = line_info_next.split("`");
@@ -48,9 +51,6 @@ public class SlangDictionary {
                     }
                 }
                 this.sDict.put(key,defi);
-                if (defi.size() > 1) {
-                    System.out.println(defi.size());
-                }
                 line_info = line_info_next;
             }
             br.close();
