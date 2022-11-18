@@ -1,5 +1,6 @@
 import java.io.*;
 import java.util.*;
+import java.util.random.RandomGenerator;
 
 public class SlangDictionary {
     //HashMap implementation
@@ -31,7 +32,7 @@ public class SlangDictionary {
             BufferedReader br = new BufferedReader(fr);
             String line_info = br.readLine();
             String key = "";
-            
+
             while (line_info != null) {
                 String[] info = line_info.split("`");
                 key = info[0];
@@ -71,6 +72,27 @@ public class SlangDictionary {
     //Save the slang dictionary file
     //This does not change the original slang dictionary file
     public Boolean saveSlangDictionary(String filename) {
+        String BACKTICK = "`", VERTICAL_LINE = "\\| ", NEWLINE = "\n";
+        try {
+            FileWriter fw = new FileWriter(filename);
+            BufferedWriter bw = new BufferedWriter(fw);
+            Iterator<Map.Entry<String, ArrayList<String>>> iter = this.sDict.entrySet().iterator();
+            while (iter.hasNext()) {
+                Map.Entry<String, ArrayList<String>> cur = iter.next();
+                bw.write(cur.getKey() + BACKTICK);
+                ArrayList<String> defi = cur.getValue();
+                for (int i = 0; i < defi.size(); i++) {
+                    bw.write(defi.get(i));
+                    if (i < defi.size() - 1) {bw.write(VERTICAL_LINE);}
+                }
+                bw.write(NEWLINE);
+            }
+            bw.close();            
+        }
+        catch (IOException exc) {
+            System.out.println(exc.toString());
+        }
+
         return false;
     }
 
@@ -83,16 +105,32 @@ public class SlangDictionary {
     //isComfirm values: -1: cancel, 0: overwrite, 1: duplicate
     //Return values: true: add success, false: add failure
     public Boolean addSlang(String word, String definition, int isComfirm) {
+        Boolean isExist = this.sDict.containsKey(word);
+        ArrayList<String> defi = new ArrayList<String>();
+        
         if (isComfirm == -1) {
             return false;
         }
-        return true;
+
+        if (!isExist || isComfirm == 0) {
+            defi.add(definition);
+            this.sDict.put(word,defi);
+            return true;
+        }
+        if (isComfirm == 1) {
+            defi.addAll(this.sDict.get(word));
+            defi.add(word);
+            this.sDict.put(word,defi);
+            return true;
+        }
+
+        return false;
     }
 
     //Edit the slang word or its definition
     public Boolean editSlang(String editBy, String word) {
         if (editBy.compareTo("word") == 0) {
-
+            
         }
         else if (editBy.compareTo("definition") == 0) {
 
@@ -102,7 +140,10 @@ public class SlangDictionary {
 
     //Delete the slang word
     public Boolean deleteSlang(String word, Boolean isComfirm) {
-        return false;
+        if (!isComfirm) {return false;}
+        this.sDict.remove(word);
+        return true;
+        
     }
 
     //Reset current dictionary to default
@@ -112,7 +153,16 @@ public class SlangDictionary {
     
     //Getting a random slang in dictionary and its definition
     public String getRandomSlang() {
-        return "";
+        Random rand = new Random();
+        ArrayList<String> keys = new ArrayList<String>(this.sDict.keySet());
+        String randomKey = keys.get(rand.nextInt(this.sDict.size()));
+        ArrayList<String> defi = this.sDict.get(randomKey);
+        String randomSlang = "";
+        randomSlang += randomKey;
+        for (int i = 0; i < defi.size(); i++) {
+            randomSlang += "|" + defi.get(i);   
+        }
+        return randomSlang;
     }
 
 }
