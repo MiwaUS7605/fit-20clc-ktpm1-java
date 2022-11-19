@@ -1,21 +1,41 @@
 import java.io.*;
 import java.util.*;
-import java.util.random.RandomGenerator;
 
 public class SlangDictionary {
     //HashMap implementation
     //Each element is a <key,values> equivalent to <slang word, its meaning>
     private HashMap<String, ArrayList<String>> sDict = new HashMap<String, ArrayList<String>>();
     private HashMap<String, ArrayList<String>> logs = new HashMap<String, ArrayList<String>>();
-
+    private ArrayList<String> keys;
     //Search by slang word, or by definition
     //Returns a string
     public String searchSlang(String searchBy, String _info) {
+        String result = "";
         if (searchBy.compareTo("word") == 0) {
-
+            ArrayList<String> defi = this.sDict.get(_info);
+            if (defi == null) {
+                return "Slang not found in dictionary";
+            }
+            result += _info;
+            for (String iter:defi) {
+                result += "|" + iter;
+            }
+            return result;
         }
         else if (searchBy.compareTo("definition") == 0) {
-
+            Iterator<Map.Entry<String, ArrayList<String>>> iter = this.sDict.entrySet().iterator();
+            while (iter.hasNext()) {
+                Map.Entry<String, ArrayList<String>> cur = iter.next();
+                String key = cur.getKey();
+                ArrayList<String> defi = cur.getValue();
+                for (int i = 0; i < defi.size(); i++) {
+                    if (defi.get(i).contains(_info)) {
+                        result += key + "|" + defi.get(i) + "\n";
+                        break;
+                    }
+                }
+            }
+            return result;
         }
         return "Error searching";
     }
@@ -55,6 +75,8 @@ public class SlangDictionary {
                 line_info = line_info_next;
             }
             br.close();
+
+            keys = new ArrayList<String>(this.sDict.keySet());
             return true;
         }
         catch (IOException exc) {
@@ -128,12 +150,20 @@ public class SlangDictionary {
     }
 
     //Edit the slang word or its definition
-    public Boolean editSlang(String editBy, String word) {
+    public Boolean editSlang(String editBy, String _slangWord, String _editText) {
         if (editBy.compareTo("word") == 0) {
-            
+            ArrayList<String> defi = this.sDict.get(_slangWord);
+            if (defi == null) {
+                return false;
+            }
+            this.deleteSlang(_slangWord, true);
+            //This should let the user input the word
+            this.sDict.put(_editText,defi);
+            //
+            return true;
         }
         else if (editBy.compareTo("definition") == 0) {
-
+            //The user choose which definition needs to be edited
         }
         return false;
     } 
@@ -143,7 +173,6 @@ public class SlangDictionary {
         if (!isComfirm) {return false;}
         this.sDict.remove(word);
         return true;
-        
     }
 
     //Reset current dictionary to default
@@ -152,17 +181,29 @@ public class SlangDictionary {
     }
     
     //Getting a random slang in dictionary and its definition
-    public String getRandomSlang() {
+    public ArrayList<String> getRandomSlang() {
         Random rand = new Random();
-        ArrayList<String> keys = new ArrayList<String>(this.sDict.keySet());
         String randomKey = keys.get(rand.nextInt(this.sDict.size()));
-        ArrayList<String> defi = this.sDict.get(randomKey);
-        String randomSlang = "";
-        randomSlang += randomKey;
-        for (int i = 0; i < defi.size(); i++) {
-            randomSlang += "|" + defi.get(i);   
+        ArrayList<String> randomSlang = new ArrayList<String>();
+        randomSlang.add(randomKey);
+        for (String value:this.sDict.get(randomKey)) {
+            randomSlang.add(value);
         }
         return randomSlang;
+    }
+
+    //Getting 4 random slang in dictionary and its definition
+    public ArrayList<ArrayList<String>> get4Slangs() {
+        ArrayList<ArrayList<String>> result = new ArrayList<ArrayList<String>>();
+        ArrayList<String> slg1 = this.getRandomSlang();
+        ArrayList<String> slg2 = this.getRandomSlang();
+        ArrayList<String> slg3 = this.getRandomSlang();
+        ArrayList<String> slg4 = this.getRandomSlang();
+        result.add(slg1);
+        result.add(slg2);
+        result.add(slg3);
+        result.add(slg4);
+        return result;
     }
 
 }
