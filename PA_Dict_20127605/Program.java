@@ -44,6 +44,8 @@ public class Program implements ItemListener {
 
     public void addComponentToPane(Container pane) 
     {      
+        
+        
         JPanel titlePane = new JPanel();
         JPanel resultListPane = new JPanel();
         JPanel centerPane = new JPanel();
@@ -55,28 +57,33 @@ public class Program implements ItemListener {
         JLabel title = new JLabel("SLANG DICTIONARY");
         title.setFont(new Font("MV Boli",Font.PLAIN,35));
 
-
-        ArrayList<String> myList = new ArrayList<String>();
-        for (int index = 0; index < 20; index++) {
-            myList.add("List Item " + index);
-        }
-
         JLabel slangKey = new JLabel();
         JLabel slangDefinition = new JLabel();
         slangInfoPane.setLayout(new BorderLayout());
 
-        JList<String> list = new JList<String>(myList.toArray(new String[myList.size()]));
+
+        DefaultListModel<String> model = new DefaultListModel<String>();
+
+        JList<String> list = new JList<String>(model);
         JScrollPane scrollPane = new JScrollPane();
         scrollPane.setViewportView(list);
+        scrollPane.setPreferredSize(new Dimension(200,500));
         list.setVisibleRowCount(16);
-        // list.setFont(new Font("monospace", Font.PLAIN,20));
         list.setLayoutOrientation(JList.VERTICAL);
         list.addListSelectionListener(new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent evt) {
                 if (!evt.getValueIsAdjusting()){
-                    String selected = list.getSelectedValue().toString();
-                    slangKey.setText(selected);
-                    slangDefinition.setText(selected);
+                    if (list.getSelectedValue() != null) {
+                        String selected = list.getSelectedValue().toString();
+                        slangKey.setText(selected);
+                        ArrayList<String> definition = sd.getDefinitionFromSlang(selected);
+                        String defi = "<html>";
+                        for (int i = 0; i < definition.size(); i++) {
+                            defi += i+1 + ". " + definition.get(i) + "<br/>";
+                        }
+                        defi += "</html>";
+                        slangDefinition.setText(defi);
+                    }
                 }
             }
         });
@@ -101,13 +108,17 @@ public class Program implements ItemListener {
 
         JTextField searchBar = new JTextField(20);
         searchBar.setMaximumSize(new Dimension(300,50));
-
+        
         btn_add.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
                 
             }
         });
+        
+        String[] cbOption = {"Search by word", "Search by definition"};
+        JComboBox<String> searchOption = new JComboBox<String>(cbOption);
+        
 
         btn_edit.addActionListener(new ActionListener() {
             @Override
@@ -133,15 +144,27 @@ public class Program implements ItemListener {
         btn_search.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
-                
-                slangKey.setText(searchBar.getText());
-                slangDefinition.setText(sd.searchSlang("word",searchBar.getText()));
+                slangKey.setText("");
+                slangDefinition.setText("");
+                model.clear();
+
+                String method = searchOption.getItemAt(searchOption.getSelectedIndex());
+                String input = searchBar.getText();
+                ArrayList<String> searchResult = sd.searchSlang(method, input);
+                if (searchResult.size() == 0) {
+                    
+                    slangDefinition.setText("Slang not found in the dictionary");
+                }
+                for (String iter:searchResult) {
+                    model.addElement(iter);      
+                }
             }
         });
 
         btn_random.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
+                model.clear();
                 ArrayList<String> randSlang = sd.getRandomSlang();
                 slangKey.setText(randSlang.get(0));
                 String defi = "<html>";
@@ -165,6 +188,7 @@ public class Program implements ItemListener {
         featurePane.add(btn_quiz);
         featurePane.add(btn_logs);
 
+        searchPane.add(searchOption);
         searchPane.add(searchBar);
         searchPane.add(btn_search);
 
