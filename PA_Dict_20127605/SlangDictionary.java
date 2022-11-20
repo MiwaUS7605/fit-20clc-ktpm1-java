@@ -5,24 +5,20 @@ public class SlangDictionary {
     //HashMap implementation
     //Each element is a <key,values> equivalent to <slang word, its meaning>
     private HashMap<String, ArrayList<String>> sDict = new HashMap<String, ArrayList<String>>();
-    private HashMap<String, ArrayList<String>> logs = new HashMap<String, ArrayList<String>>();
+    private ArrayList<String> logs = new ArrayList<String>();
     private ArrayList<String> keys;
     //Search by slang word, or by definition
-    //Returns a string
-    public String searchSlang(String searchBy, String _info) {
-        String result = "";
-        if (searchBy.compareTo("word") == 0) {
+    //Returns a string contain keys
+    public ArrayList<String> searchSlang(String _method, String _info) {
+        ArrayList<String> foundedKeys = new ArrayList<String>();
+        if (_method.compareTo("Search by word") == 0) {
             ArrayList<String> defi = this.sDict.get(_info);
             if (defi == null) {
-                return "Slang not found in dictionary";
+                return foundedKeys;
             }
-            result += _info;
-            for (String iter:defi) {
-                result += "|" + iter;
-            }
-            return result;
+            foundedKeys.add(_info);
         }
-        else if (searchBy.compareTo("definition") == 0) {
+        else if (_method.compareTo("Search by definition") == 0) {
             Iterator<Map.Entry<String, ArrayList<String>>> iter = this.sDict.entrySet().iterator();
             while (iter.hasNext()) {
                 Map.Entry<String, ArrayList<String>> cur = iter.next();
@@ -30,14 +26,13 @@ public class SlangDictionary {
                 ArrayList<String> defi = cur.getValue();
                 for (int i = 0; i < defi.size(); i++) {
                     if (defi.get(i).contains(_info)) {
-                        result += key + "|" + defi.get(i) + "\n";
+                        foundedKeys.add(key);
                         break;
                     }
                 }
             }
-            return result;
         }
-        return "Error searching";
+        return foundedKeys;
     }
 
     //Load the logs file
@@ -74,6 +69,7 @@ public class SlangDictionary {
                 this.sDict.put(key,defi);
                 line_info = line_info_next;
             }
+            fr.close();
             br.close();
 
             keys = new ArrayList<String>(this.sDict.keySet());
@@ -204,6 +200,10 @@ public class SlangDictionary {
         result.add(slg3);
         result.add(slg4);
         return result;
+    }
+
+    public ArrayList<String> getDefinitionFromSlang(String word) {
+        return this.sDict.get(word);
     }
 
 }
