@@ -6,6 +6,8 @@ import java.awt.event.*;
 
 public class Program implements ItemListener {
 
+    private SlangDictionary sd = new SlangDictionary();
+
     public static void quizBySlangWord(SlangDictionary sd) {
         ArrayList<ArrayList<String>> fourSlang = sd.get4Slangs();
         ArrayList<String> answers = new ArrayList<String>();
@@ -131,8 +133,23 @@ public class Program implements ItemListener {
         btn_search.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
+                
                 slangKey.setText(searchBar.getText());
-                slangDefinition.setText("Congratulations!");
+                slangDefinition.setText(sd.searchSlang("word",searchBar.getText()));
+            }
+        });
+
+        btn_random.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                ArrayList<String> randSlang = sd.getRandomSlang();
+                slangKey.setText(randSlang.get(0));
+                String defi = "<html>";
+                for (int i = 1; i < randSlang.size(); i++) {
+                    defi += i + ". " + randSlang.get(i) + "<br/>";
+                }
+                defi += "</html>";
+                slangDefinition.setText(defi);
             }
         });
 
@@ -153,7 +170,7 @@ public class Program implements ItemListener {
 
         slangKey.setFont(new Font("MV Boli",Font.PLAIN,30));
 
-        slangDefinition.setFont(new Font("MV Boli",Font.PLAIN,20));
+        slangDefinition.setFont(new Font("Arial",Font.PLAIN,15));
 
         titlePane.add(title);   
         resultListPane.add(scrollPane);
@@ -184,6 +201,18 @@ public class Program implements ItemListener {
         frame.pack();
         frame.setVisible(true);
     }
+
+    Program() {
+        try {
+            this.sd.loadSlangDictionary("slang.txt");
+        }
+        catch (Exception exc) {
+            exc.toString();
+        }
+
+    }
+
+
 
     @Override
     public void itemStateChanged(ItemEvent evt) 
