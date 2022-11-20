@@ -42,12 +42,16 @@ public class Program implements ItemListener {
 
     public void addComponentToPane(Container pane) 
     {      
-        JPanel card1 = new JPanel();
-        JPanel card2 = new JPanel();
-        JPanel card3 = new JPanel();
+        JPanel titlePane = new JPanel();
+        JPanel resultListPane = new JPanel();
+        JPanel centerPane = new JPanel();
+        JPanel searchPane = new JPanel();
+        JPanel slangInfoPane = new JPanel();
+        JPanel functionPane = new JPanel();
+        JPanel featurePane = new JPanel();
         
         JLabel title = new JLabel("SLANG DICTIONARY");
-        title.setFont(new Font("MV Boli",Font.PLAIN,40));
+        title.setFont(new Font("MV Boli",Font.PLAIN,35));
 
 
         ArrayList<String> myList = new ArrayList<String>();
@@ -57,12 +61,13 @@ public class Program implements ItemListener {
 
         JLabel slangKey = new JLabel();
         JLabel slangDefinition = new JLabel();
+        slangInfoPane.setLayout(new BorderLayout());
 
         JList<String> list = new JList<String>(myList.toArray(new String[myList.size()]));
         JScrollPane scrollPane = new JScrollPane();
         scrollPane.setViewportView(list);
-        list.setVisibleRowCount(15);
-        list.setFont(new Font("monospace", Font.PLAIN,20));
+        list.setVisibleRowCount(16);
+        // list.setFont(new Font("monospace", Font.PLAIN,20));
         list.setLayoutOrientation(JList.VERTICAL);
         list.addListSelectionListener(new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent evt) {
@@ -75,39 +80,96 @@ public class Program implements ItemListener {
         });
         
         JButton btn_add = new JButton("ADD");
+        btn_add.setMaximumSize(new Dimension(100,50));
         JButton btn_edit = new JButton("EDIT");
+        btn_edit.setMaximumSize(new Dimension(100,50));
         JButton btn_del = new JButton("DELETE");
+        btn_del.setMaximumSize(new Dimension(100,50));
         JButton btn_reset = new JButton("RESET");
+        btn_reset.setMaximumSize(new Dimension(100,50));
 
-        card3.add(btn_add);
-        card3.add(btn_edit);
-        card3.add(btn_del);
-        card3.add(btn_reset);
+        JButton btn_random = new JButton("RANDOM");
+        btn_random.setMaximumSize(new Dimension(100,50));
+        JButton btn_search = new JButton("SEARCH");
+        btn_search.setMaximumSize(new Dimension(100,50));
+        JButton btn_quiz = new JButton("QUIZ");
+        btn_quiz.setMaximumSize(new Dimension(100,50));
+        JButton btn_logs = new JButton("HISTORY");
+        btn_logs.setMaximumSize(new Dimension(100,50));
 
-        btn_add.setBounds(50,400,100,50);
-        btn_edit.setBounds(175,400,100,50);
-        btn_del.setBounds(300,400,100,50);
-        btn_reset.setBounds(425,400,100,50);
+        JTextField searchBar = new JTextField(20);
+        searchBar.setMaximumSize(new Dimension(300,50));
 
+        btn_add.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                
+            }
+        });
 
-        card3.setLayout(null);
-        slangKey.setBounds(10,0,300,50);
+        btn_edit.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                
+            }
+        });
+
+        btn_del.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                
+            }
+        });
+
+        btn_reset.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                
+            }
+        });
+
+        btn_search.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                slangKey.setText(searchBar.getText());
+                slangDefinition.setText("Congratulations!");
+            }
+        });
+
+        
+        
+        functionPane.add(btn_add);
+        functionPane.add(btn_edit);
+        functionPane.add(btn_del);
+        functionPane.add(btn_reset);
+        
+        featurePane.setLayout(new GridLayout());
+        featurePane.add(btn_random);
+        featurePane.add(btn_quiz);
+        featurePane.add(btn_logs);
+
+        searchPane.add(searchBar);
+        searchPane.add(btn_search);
+
         slangKey.setFont(new Font("MV Boli",Font.PLAIN,30));
-        slangDefinition.setBounds(10,100,300,50);
+
         slangDefinition.setFont(new Font("MV Boli",Font.PLAIN,20));
 
-        card1.setBackground(new Color(0,0,255));
-        card2.setBackground(new Color(0,255,0));
-        card3.setBackground(new Color(255,0,0));
+        titlePane.add(title);   
+        resultListPane.add(scrollPane);
+        slangInfoPane.add(slangKey, BorderLayout.NORTH);
+        slangInfoPane.add(slangDefinition, BorderLayout.CENTER);
 
-        card1.add(title);   
-        card2.add(scrollPane);
-        card3.add(slangKey);
-        card3.add(slangDefinition);
+        centerPane.setLayout(new BorderLayout());
+        centerPane.add(searchPane, BorderLayout.NORTH);
+        centerPane.add(slangInfoPane, BorderLayout.CENTER);
+        centerPane.add(functionPane, BorderLayout.SOUTH);
+        centerPane.add(featurePane, BorderLayout.EAST);
+        featurePane.setLayout(new BoxLayout(featurePane, BoxLayout.Y_AXIS));
 
-        pane.add(card1, BorderLayout.NORTH);
-        pane.add(card2, BorderLayout.WEST);
-        pane.add(card3, BorderLayout.CENTER);
+        pane.add(titlePane, BorderLayout.NORTH);
+        pane.add(resultListPane, BorderLayout.WEST);
+        pane.add(centerPane, BorderLayout.CENTER);
     }
 
     private static void createAndShowGUI() 
@@ -120,7 +182,6 @@ public class Program implements ItemListener {
         demo.addComponentToPane(frame.getContentPane());
         
         frame.pack();
-        frame.setSize(800,600);
         frame.setVisible(true);
     }
 
@@ -129,6 +190,8 @@ public class Program implements ItemListener {
     {
         // TODO: quiz page implementation 
     }
+
+    
 
 
     public static void main(String args[]) {
