@@ -44,8 +44,6 @@ public class Program implements ItemListener {
 
     public void addComponentToPane(Container pane) 
     {      
-        
-        
         JPanel titlePane = new JPanel();
         JPanel resultListPane = new JPanel();
         JPanel centerPane = new JPanel();
@@ -112,14 +110,81 @@ public class Program implements ItemListener {
         btn_add.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
+                JFrame addFrame = new JFrame("Add Slang");
+                addFrame.setResizable(false);
+
+                JPanel pane1 = new JPanel();
+                JPanel pane2 = new JPanel();
+                JPanel pane3 = new JPanel();
+
+                JLabel slangName = new JLabel("Slang name");
+                JLabel slangDefinition = new JLabel("Slang definition");
                 
+                JTextField entry1 = new JTextField(20);
+                JTextArea entry2 = new JTextArea(5,20);
+
+                JButton button1 = new JButton("CONFIRM");
+                button1.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent evt) {
+                        //Input string not empty
+                        String input1 = entry1.getText();
+                        String input2 = entry2.getText();
+                        String outputMessage = "Add slang successfully!";
+
+                        if (!input1.equals("") || !input2.equals("")) {
+                            if (sd.isExist(input1) == false) {
+                                sd.addSlang(input1, input2, 0);
+                            }
+                            else {
+                                String[] options = {"Overwrite","Duplicate","Cancel"};
+                                String note = "Slang is already specified. What will you do?";
+                                int result = JOptionPane.showOptionDialog(null, note,"WARNING: SLANG EXIST", 0, 0, null, options,options[0]);
+
+                                if (result == JOptionPane.YES_OPTION) {
+                                    sd.addSlang(input1, input2, 0);
+                                    outputMessage = "Overwrite slang successfully!";
+                                }
+                                else if (result == JOptionPane.NO_OPTION) {
+                                    sd.addSlang(input1, input2, 1);
+                                    outputMessage = "Duplicate slang successfully!";
+                                }
+                                else {
+                                    sd.addSlang(input1, input2, -1);
+                                    outputMessage = "Cancel!";
+                                }
+                            }
+                        }
+                        else {
+                            outputMessage = "ERROR: Invalid/Empty input!";
+                        }
+                        
+                        JOptionPane.showMessageDialog(null, outputMessage, "Notification",JOptionPane.INFORMATION_MESSAGE);
+                        addFrame.dispatchEvent(new WindowEvent(addFrame, WindowEvent.WINDOW_CLOSING));
+                        
+                    }
+                });
+                pane1.add(slangName);
+                pane1.add(entry1);
+                pane2.add(slangDefinition);
+                pane2.add(entry2);
+                pane3.add(button1);
+
+                addFrame.setLayout(new BorderLayout());
+                addFrame.add(pane1, BorderLayout.NORTH);
+                addFrame.add(pane2, BorderLayout.CENTER);
+                addFrame.add(pane3, BorderLayout.SOUTH);
+
+                addFrame.pack();
+                addFrame.setLocation(pane.getWidth()/3, pane.getHeight()/3);
+                addFrame.setVisible(true);
+
             }
         });
         
         String[] cbOption = {"Search by word", "Search by definition"};
         JComboBox<String> searchOption = new JComboBox<String>(cbOption);
         
-
         btn_edit.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
@@ -152,7 +217,6 @@ public class Program implements ItemListener {
                 String input = searchBar.getText();
                 ArrayList<String> searchResult = sd.searchSlang(method, input);
                 if (searchResult.size() == 0) {
-                    
                     slangDefinition.setText("Slang not found in the dictionary");
                 }
                 for (String iter:searchResult) {
@@ -176,8 +240,6 @@ public class Program implements ItemListener {
             }
         });
 
-        
-        
         functionPane.add(btn_add);
         functionPane.add(btn_edit);
         functionPane.add(btn_del);
