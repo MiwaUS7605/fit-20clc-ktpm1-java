@@ -119,25 +119,27 @@ public class SlangDictionary {
         //Do something with the history (this.logs)
     } 
 
+    public Boolean isExist(String word) {
+        return this.sDict.containsKey(word);
+    }
     //Add the slang word to the dictionary
-    //isComfirm values: -1: cancel, 0: overwrite, 1: duplicate
+    //isComfirm values: -1: cancel, 0: overwrite/normal adding if not exist, 1: duplicate
     //Return values: true: add success, false: add failure
     public Boolean addSlang(String word, String definition, int isComfirm) {
-        Boolean isExist = this.sDict.containsKey(word);
         ArrayList<String> defi = new ArrayList<String>();
-        
+
         if (isComfirm == -1) {
             return false;
         }
 
-        if (!isExist || isComfirm == 0) {
+        if (isComfirm == 0) {
             defi.add(definition);
             this.sDict.put(word,defi);
             return true;
         }
         if (isComfirm == 1) {
             defi.addAll(this.sDict.get(word));
-            defi.add(word);
+            defi.add(definition);
             this.sDict.put(word,defi);
             return true;
         }
