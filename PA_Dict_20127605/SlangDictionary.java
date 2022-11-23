@@ -253,7 +253,7 @@ public class SlangDictionary {
 
     public void writeLogs(String CHANGELOG) {
         this.logs.add(CHANGELOG);
-        this.saveLogs("logs.txt", CHANGELOG);
+        this.saveLogs("logs.txt", CHANGELOG);   
     }
 
     public ArrayList<String> quizBySlangWord() {
@@ -264,13 +264,14 @@ public class SlangDictionary {
         String question = fourSlang.get(randNum).get(0); //get the question
         
         for (int i = 0; i < fourSlang.size(); i++) {
-            answers.add(fourSlang.get(i).get(rand.nextInt(fourSlang.get(i).size())));
+            answers.add(fourSlang.get(i).get(rand.nextInt(1,fourSlang.get(i).size())));
         }
 
         //Set the question and answers
         ArrayList<String> quiz = new ArrayList<String>();
         quiz.add(question);
         quiz.addAll(answers);
+        // quiz.add(Integer.toString(randNum));
         //
         return quiz;
     }
@@ -280,7 +281,7 @@ public class SlangDictionary {
         ArrayList<String> answers = new ArrayList<String>();
         Random rand = new Random();
         int randNum1 = rand.nextInt(4); //is the answer to the question
-        int randNum2 = rand.nextInt(fourSlang.get(randNum1).size()); //is the question
+        int randNum2 = rand.nextInt(1,fourSlang.get(randNum1).size()); //is the question
         String question = fourSlang.get(randNum1).get(randNum2);
         
         for (int i = 0; i < fourSlang.size(); i++) {
@@ -290,6 +291,7 @@ public class SlangDictionary {
         ArrayList<String> quiz = new ArrayList<String>();
         quiz.add(question);
         quiz.addAll(answers);
+        // quiz.add(Integer.toString(randNum1));
         //
         return quiz;
     }
