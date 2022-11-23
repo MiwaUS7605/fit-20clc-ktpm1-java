@@ -27,3 +27,13 @@
 2022-11-24T00:00:19.734+07:00;Search by word;WWW
 2022-11-24T00:00:20.356+07:00;Search by word;WWW
 2022-11-24T00:00:20.843+07:00;Search by word;WWW
+2022-11-24T01:54:21.860+07:00;Search by word;LG
+2022-11-24T01:54:29.808+07:00;Search by definition;LG
+2022-11-24T01:54:32.264+07:00;Search by definition;LG
+2022-11-24T01:59:35.704+07:00;Search by word;TTML
+2022-11-24T01:59:53.054+07:00;Search by definition;Family
+2022-11-24T02:33:13.747+07:00;Search by word;PEWPEW
+2022-11-24T03:13:33.767+07:00;Search by word;727
+2022-11-24T03:13:47.774+07:00;Search by word;727
+2022-11-24T03:14:04.419+07:00;Search by word;727
+2022-11-24T03:14:07.942+07:00;Search by word;WYSI
