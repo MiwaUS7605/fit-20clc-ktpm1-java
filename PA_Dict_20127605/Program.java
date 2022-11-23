@@ -1,4 +1,5 @@
 import java.util.*;
+import java.util.function.Function;
 import java.text.SimpleDateFormat;
 import javax.swing.*;
 import javax.swing.event.*;
@@ -335,6 +336,127 @@ public class Program {
                 logFrame.add(scrollLogs);
                 logFrame.pack();
                 logFrame.setVisible(true);
+            }
+        });
+
+        btn_quiz.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                JFrame quizFrame = new JFrame("SLANG QUIZ");
+                JPanel pane_title = new JPanel(new GridLayout(3,1));
+                
+                JLabel lb_title = new JLabel("SLANG QUIZ");
+                lb_title.setFont(new Font("MV Boli",Font.PLAIN,35));
+                lb_title.setMaximumSize(new Dimension(300,35));
+                lb_title.setHorizontalAlignment(JLabel.CENTER);
+
+                String[] quizType = {"Quiz by slang", "Quiz by definition"};
+                JComboBox<String> cb_quiz = new JComboBox<String>(quizType);
+
+                JPanel pane_funct = new JPanel(new GridLayout(2,1));
+
+                JButton btn_submit = new JButton("SUBMIT");
+                JButton btn_nextQuiz = new JButton("NEXT");
+
+                cb_quiz.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent evt) {
+                        btn_nextQuiz.doClick();
+                    }
+                });
+                
+                JPanel pane_quizInfo = new JPanel(new GridLayout(2,2));
+
+                JLabel lb_question = new JLabel();
+                ArrayList<JRadioButton> rbuttons = new ArrayList<JRadioButton>();
+                rbuttons.add(new JRadioButton());
+                rbuttons.add(new JRadioButton());
+                rbuttons.add(new JRadioButton());
+                rbuttons.add(new JRadioButton());
+                
+                ButtonGroup btn_grp = new ButtonGroup();
+
+                btn_grp.add(rbuttons.get(0));
+                btn_grp.add(rbuttons.get(1));
+                btn_grp.add(rbuttons.get(2));
+                btn_grp.add(rbuttons.get(3));
+                
+                pane_quizInfo.add(rbuttons.get(0));
+                pane_quizInfo.add(rbuttons.get(1));
+                pane_quizInfo.add(rbuttons.get(2));
+                pane_quizInfo.add(rbuttons.get(3));
+
+                btn_nextQuiz.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent evt) {
+                        String quizOption = cb_quiz.getItemAt(cb_quiz.getSelectedIndex());
+                        ArrayList<String> generateQuiz = new ArrayList<String>();
+                        if (quizOption.compareTo(quizType[0]) == 0) {
+                            generateQuiz.addAll(sd.quizBySlangWord());
+                        }
+                        else {
+                            generateQuiz.addAll(sd.quizBySlangDefinition());
+                        }
+                        lb_question.setText(generateQuiz.get(0));
+                        rbuttons.get(0).setText(generateQuiz.get(1));
+                        rbuttons.get(1).setText(generateQuiz.get(2));
+                        rbuttons.get(2).setText(generateQuiz.get(3));
+                        rbuttons.get(3).setText(generateQuiz.get(4));
+                    }
+                });
+
+                btn_submit.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent evt) {
+                        String quizOption = cb_quiz.getItemAt(cb_quiz.getSelectedIndex());
+                        Boolean submitResult = false;
+                        if (quizOption.compareTo(quizType[0]) == 0) {
+                            for (int i = 0; i < rbuttons.size(); i++) {
+                                if (rbuttons.get(i).isSelected()) {
+                                    submitResult = sd.searchSlang(cbOption[1], 
+                                        rbuttons.get(i).getText()).contains(lb_question.getText());
+                                }
+                            }
+                        }
+                        else {
+                            for (int i = 0; i < rbuttons.size(); i++) {
+                                if (rbuttons.get(i).isSelected()) {
+                                    submitResult = sd.searchSlang(cbOption[1], 
+                                    lb_question.getText()).contains(rbuttons.get(i).getText());
+                                }
+                            }
+                        }
+                        
+                        if (submitResult == true) {
+                            JOptionPane.showMessageDialog(null, "CORRECT ANSWER!", "NOTIFICATION", JOptionPane.INFORMATION_MESSAGE);
+                        }
+                        else {
+                            JOptionPane.showMessageDialog(null, "WRONG ANSWER!", "NOTIFICATION", JOptionPane.YES_OPTION);
+                        }         
+                        btn_nextQuiz.doClick();               
+                    }
+                });
+
+                pane_title.add(lb_title);
+                pane_title.add(cb_quiz);
+                pane_title.add(lb_question);
+
+                pane_quizInfo.add(rbuttons.get(0));
+                pane_quizInfo.add(rbuttons.get(1));
+                pane_quizInfo.add(rbuttons.get(2));
+                pane_quizInfo.add(rbuttons.get(3));
+
+                pane_funct.add(btn_submit);
+                pane_funct.add(btn_nextQuiz);
+
+                quizFrame.add(pane_title,BorderLayout.NORTH);
+                quizFrame.add(pane_quizInfo,BorderLayout.CENTER);
+                quizFrame.add(pane_funct,BorderLayout.SOUTH);
+
+                quizFrame.pack();
+                quizFrame.setVisible(true);
+
+                btn_nextQuiz.doClick();
             }
         });
 
