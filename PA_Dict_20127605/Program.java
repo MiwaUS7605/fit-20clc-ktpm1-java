@@ -1,46 +1,13 @@
 import java.util.*;
+import java.text.SimpleDateFormat;
 import javax.swing.*;
 import javax.swing.event.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public class Program implements ItemListener {
+public class Program {
 
-    private SlangDictionary sd = new SlangDictionary();
-
-    public static void quizBySlangWord(SlangDictionary sd) {
-        ArrayList<ArrayList<String>> fourSlang = sd.get4Slangs();
-        ArrayList<String> answers = new ArrayList<String>();
-        Random rand = new Random();
-        int randNum = rand.nextInt(4); //is the answer
-        String question = fourSlang.get(randNum).get(0); //get the question
-        
-        for (int i = 0; i < fourSlang.size(); i++) {
-            answers.add(fourSlang.get(i).get(rand.nextInt(fourSlang.get(i).size())));
-        }
-
-        //Set the question and answers
-
-        //
-        return;
-    }
-
-    public static void quizBySlangDefinition(SlangDictionary sd) {
-        ArrayList<ArrayList<String>> fourSlang = sd.get4Slangs();
-        ArrayList<String> answers = new ArrayList<String>();
-        Random rand = new Random();
-        int randNum1 = rand.nextInt(4); //is the answer to the question
-        int randNum2 = rand.nextInt(fourSlang.get(randNum1).size()); //is the question
-        String question = fourSlang.get(randNum1).get(randNum2);
-        
-        for (int i = 0; i < fourSlang.size(); i++) {
-            answers.add(fourSlang.get(i).get(0));
-        }
-
-        //Set the question and answers
-            
-        //
-    }
+    private SlangDictionary sd;
 
     public void addComponentToPane(Container pane) 
     {      
@@ -58,7 +25,6 @@ public class Program implements ItemListener {
         JLabel slangKey = new JLabel();
         JLabel slangDefinition = new JLabel();
         slangInfoPane.setLayout(new BorderLayout());
-
 
         DefaultListModel<String> model = new DefaultListModel<String>();
 
@@ -103,6 +69,8 @@ public class Program implements ItemListener {
         btn_quiz.setMaximumSize(new Dimension(100,50));
         JButton btn_logs = new JButton("HISTORY");
         btn_logs.setMaximumSize(new Dimension(100,50));
+        // JButton btn_showDict = new JButton("SHOW ALL");
+        // btn_showDict.setMaximumSize(new Dimension(100,50));
 
         JTextField searchBar = new JTextField(20);
         searchBar.setMaximumSize(new Dimension(300,50));
@@ -110,7 +78,7 @@ public class Program implements ItemListener {
         btn_add.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
-                JFrame addFrame = new JFrame("Add Slang");
+                JFrame addFrame = new JFrame("ADD SLANG");
                 addFrame.setResizable(false);
 
                 JPanel pane1 = new JPanel();
@@ -188,21 +156,100 @@ public class Program implements ItemListener {
         btn_edit.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
+                JFrame editFrame = new JFrame("EDIT SLANG");
+                editFrame.setLayout(new BoxLayout(editFrame.getContentPane(), BoxLayout.Y_AXIS));
+                editFrame.setResizable(false);
                 
+                if (list.getSelectedValue() == null) {
+                    JOptionPane.showMessageDialog(null, "You must choose the slang from the list!", "ERROR: SLANG NOT FOUND", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+                DefaultListModel<String> model = new DefaultListModel<String>();
+                String slangWord = list.getSelectedValue().toString();
+                model.addElement(slangWord);
+                for (String iter:sd.getDefinitionFromSlang(slangWord)) {
+                    model.addElement(iter);
+                }
+
+                JLabel title = new JLabel("Select an info to edit");
+                JList<String> infos = new JList<String>(model);
+            
+                JTextField info_edit = new JTextField(20);
+                JButton btn_confirm = new JButton("CONFIRM");
+
+                btn_confirm.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent evt) {
+                        String curSlang = model.get(0);
+                        String[] method = {"word","definition"};
+                        String msg = "";
+                        if (infos.getSelectedValue() != null) {
+                            
+                            int selected_idx = infos.getSelectedIndex();
+                            
+                            if (selected_idx == 0) {
+                                sd.editSlang(method[0],curSlang,info_edit.getText(),0);
+                                msg = "Edit by " + method[0] + " successfully!";
+                            }
+                            else {
+                                sd.editSlang(method[1],curSlang,info_edit.getText(),selected_idx - 1);
+                                msg = "Edit by " + method[1] + " successfully!";
+                            }
+                            model.set(selected_idx, info_edit.getText());
+                            JOptionPane.showMessageDialog(null,msg,"NOTIFICATION", JOptionPane.INFORMATION_MESSAGE);
+                        }
+                        else {
+                            JOptionPane.showMessageDialog(null, "You must choose info to edit from the list!", "ERROR: UNKNOWN FIELD", JOptionPane.ERROR_MESSAGE);
+                        }
+                    }
+                });
+                
+                infos.setLayoutOrientation(JList.VERTICAL);
+
+                editFrame.add(title);
+                editFrame.add(infos);
+                editFrame.add(info_edit);
+                editFrame.add(btn_confirm);
+
+                editFrame.pack();
+                editFrame.setVisible(true);
             }
         });
 
         btn_del.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
-                
+                if (list.getSelectedValue() != null) {
+                    String selected = list.getSelectedValue().toString();
+                    String outputMessage = "";
+                    int result = JOptionPane.showConfirmDialog(null,"Are you sure?" , "WARNING: DELETE SLANG", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+                    if (result == JOptionPane.YES_OPTION) {
+                        outputMessage = "Delete \"" + selected + "\" successfully!";
+                    }
+                    else {
+                        outputMessage = "Cancel delete slang!";
+                    }
+                    sd.deleteSlang(selected, result);
+                    outputMessage += "\nPress <SHOW ALL> button to show again.";
+                    JOptionPane.showMessageDialog(null,outputMessage, "NOTIFICATION", JOptionPane.INFORMATION_MESSAGE);
+                    model.clear();
+                }
             }
         });
 
         btn_reset.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
-                
+                try {
+                    sd.resetDictionary();
+                    searchBar.setText(null);
+                    slangKey.setText(null);
+                    slangDefinition.setText(null);
+                    JOptionPane.showMessageDialog(null, "RESET TO ORIGINAL DICTIONARY", "NOTIFICATION", JOptionPane.INFORMATION_MESSAGE);
+                }
+                catch (Exception e) { 
+                    JOptionPane.showMessageDialog(null, e.toString(), "ERROR",JOptionPane.ERROR_MESSAGE);
+                }
             }
         });
 
@@ -217,11 +264,17 @@ public class Program implements ItemListener {
                 String input = searchBar.getText();
                 ArrayList<String> searchResult = sd.searchSlang(method, input);
                 if (searchResult.size() == 0) {
-                    slangDefinition.setText("Slang not found in the dictionary");
+                    String msg = "Slang not found in the dictionary";
+                    JOptionPane.showMessageDialog(null, msg,"ERROR", JOptionPane.ERROR_MESSAGE);
                 }
                 for (String iter:searchResult) {
                     model.addElement(iter);      
                 }
+
+                String timeStamp = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX").format(new java.util.Date());
+                sd.writeLogs(timeStamp + ";" + method + ";" + input);
+                System.out.println(timeStamp + ";" + method + ";" + input);
+                
             }
         });
 
@@ -229,14 +282,59 @@ public class Program implements ItemListener {
             @Override
             public void actionPerformed(ActionEvent evt) {
                 model.clear();
+                searchBar.setText(null);
+
                 ArrayList<String> randSlang = sd.getRandomSlang();
-                slangKey.setText(randSlang.get(0));
+                slangKey.setText("<html>On this day slang word:<br/>" + randSlang.get(0) + "</html>");
                 String defi = "<html>";
                 for (int i = 1; i < randSlang.size(); i++) {
+                    
                     defi += i + ". " + randSlang.get(i) + "<br/>";
                 }
                 defi += "</html>";
                 slangDefinition.setText(defi);
+
+            }
+        });
+
+
+        // Too slow to display the full slang dictionary
+        // btn_showDict.addActionListener(new ActionListener() {
+        //     @Override
+        //     public void actionPerformed(ActionEvent evt) {
+        //         model.clear();
+        //         ArrayList<String> keys = sd.showKeys();
+        //         for (String iter:keys) {
+        //             model.addElement(iter);
+        //         }
+        //         slangKey.setText(null);
+        //         slangDefinition.setText(null);
+        //         searchBar.setText(null);
+        //     }
+        // });
+
+        btn_logs.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                JFrame logFrame = new JFrame("LOGS");
+                
+                DefaultListModel<String> model = new DefaultListModel<String>();
+
+                JList<String> logs = new JList<String>(model);
+
+                JScrollPane scrollLogs = new JScrollPane();
+                scrollLogs.setViewportView(logs);
+                scrollLogs.setPreferredSize(new Dimension(350,500));
+                list.setVisibleRowCount(16);
+                list.setLayoutOrientation(JList.VERTICAL);
+
+                for (String iter:sd.showHistory()) {
+                    model.addElement(iter);
+                }
+                
+                logFrame.add(scrollLogs);
+                logFrame.pack();
+                logFrame.setVisible(true);
             }
         });
 
@@ -249,6 +347,7 @@ public class Program implements ItemListener {
         featurePane.add(btn_random);
         featurePane.add(btn_quiz);
         featurePane.add(btn_logs);
+        // featurePane.add(btn_showDict);
 
         searchPane.add(searchOption);
         searchPane.add(searchBar);
@@ -283,31 +382,22 @@ public class Program implements ItemListener {
         
         Program demo = new Program();
         demo.addComponentToPane(frame.getContentPane());
+
+        // frame.addWindowListener(new WindowAdapter() {
+        //     @Override
+        //     public void windowClosing(WindowEvent evt) {
+                
+        //     }
+        // });
         
         frame.pack();
         frame.setVisible(true);
+        
     }
 
     Program() {
-        try {
-            this.sd.loadSlangDictionary("slang.txt");
-        }
-        catch (Exception exc) {
-            exc.toString();
-        }
-
+        this.sd = new SlangDictionary();
     }
-
-
-
-    @Override
-    public void itemStateChanged(ItemEvent evt) 
-    {
-        // TODO: quiz page implementation 
-    }
-
-    
-
 
     public static void main(String args[]) {
         javax.swing.SwingUtilities.invokeLater(new Runnable() 
