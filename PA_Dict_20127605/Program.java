@@ -1,14 +1,14 @@
 import java.util.*;
-import java.util.function.Function;
 import java.text.SimpleDateFormat;
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.*;
 import java.awt.*;
 import java.awt.event.*;
 
 public class Program {
 
-    private SlangDictionary sd;
+    private static SlangDictionary sd;
 
     public void addComponentToPane(Container pane) 
     {      
@@ -81,16 +81,14 @@ public class Program {
             public void actionPerformed(ActionEvent evt) {
                 JFrame addFrame = new JFrame("ADD SLANG");
                 addFrame.setResizable(false);
-
                 JPanel pane1 = new JPanel();
                 JPanel pane2 = new JPanel();
-                JPanel pane3 = new JPanel();
 
                 JLabel slangName = new JLabel("Slang name");
                 JLabel slangDefinition = new JLabel("Slang definition");
                 
                 JTextField entry1 = new JTextField(20);
-                JTextArea entry2 = new JTextArea(5,20);
+                JTextArea entry2 = new JTextArea(1,20);
 
                 JButton button1 = new JButton("CONFIRM");
                 button1.addActionListener(new ActionListener() {
@@ -133,16 +131,17 @@ public class Program {
                         
                     }
                 });
+                
+                pane1.setLayout(new GridLayout(2,2));
                 pane1.add(slangName);
                 pane1.add(entry1);
-                pane2.add(slangDefinition);
-                pane2.add(entry2);
-                pane3.add(button1);
+                pane1.add(slangDefinition);
+                pane1.add(entry2);
+                pane2.add(button1);
 
                 addFrame.setLayout(new BorderLayout());
                 addFrame.add(pane1, BorderLayout.NORTH);
-                addFrame.add(pane2, BorderLayout.CENTER);
-                addFrame.add(pane3, BorderLayout.SOUTH);
+                addFrame.add(pane2, BorderLayout.SOUTH);
 
                 addFrame.pack();
                 addFrame.setLocation(pane.getWidth()/3, pane.getHeight()/3);
@@ -150,6 +149,8 @@ public class Program {
 
             }
         });
+
+        
         
         String[] cbOption = {"Search by word", "Search by definition"};
         JComboBox<String> searchOption = new JComboBox<String>(cbOption);
@@ -231,9 +232,14 @@ public class Program {
                         outputMessage = "Cancel delete slang!";
                     }
                     sd.deleteSlang(selected, result);
-                    outputMessage += "\nPress <SHOW ALL> button to show again.";
                     JOptionPane.showMessageDialog(null,outputMessage, "NOTIFICATION", JOptionPane.INFORMATION_MESSAGE);
                     model.clear();
+                    slangKey.setText(null);
+                    slangDefinition.setText(null);
+                    searchBar.setText(null);
+                }
+                else {
+                    JOptionPane.showMessageDialog(null, "You must choose info to edit from the list!", "ERROR: UNKNOWN FIELD", JOptionPane.ERROR_MESSAGE);
                 }
             }
         });
@@ -246,6 +252,7 @@ public class Program {
                     searchBar.setText(null);
                     slangKey.setText(null);
                     slangDefinition.setText(null);
+                    model.clear();
                     JOptionPane.showMessageDialog(null, "RESET TO ORIGINAL DICTIONARY", "NOTIFICATION", JOptionPane.INFORMATION_MESSAGE);
                 }
                 catch (Exception e) { 
@@ -347,7 +354,6 @@ public class Program {
                 
                 JLabel lb_title = new JLabel("SLANG QUIZ");
                 lb_title.setFont(new Font("MV Boli",Font.PLAIN,35));
-                lb_title.setMaximumSize(new Dimension(300,35));
                 lb_title.setHorizontalAlignment(JLabel.CENTER);
 
                 String[] quizType = {"Quiz by slang", "Quiz by definition"};
@@ -455,6 +461,8 @@ public class Program {
 
                 quizFrame.pack();
                 quizFrame.setVisible(true);
+                quizFrame.setSize(new Dimension(550,350));
+                quizFrame.setLocation(pane.getWidth()/3, pane.getHeight()/3);
 
                 btn_nextQuiz.doClick();
             }
@@ -464,8 +472,7 @@ public class Program {
         functionPane.add(btn_edit);
         functionPane.add(btn_del);
         functionPane.add(btn_reset);
-        
-        featurePane.setLayout(new GridLayout());
+
         featurePane.add(btn_random);
         featurePane.add(btn_quiz);
         featurePane.add(btn_logs);
@@ -502,15 +509,15 @@ public class Program {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setResizable(false);
         
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent evt) {
+                sd.saveSlangDictionary("program_slang.txt");
+            }
+        });
+
         Program demo = new Program();
         demo.addComponentToPane(frame.getContentPane());
-
-        // frame.addWindowListener(new WindowAdapter() {
-        //     @Override
-        //     public void windowClosing(WindowEvent evt) {
-                
-        //     }
-        // });
         
         frame.pack();
         frame.setVisible(true);
@@ -518,7 +525,7 @@ public class Program {
     }
 
     Program() {
-        this.sd = new SlangDictionary();
+        sd = new SlangDictionary();
     }
 
     public static void main(String args[]) {

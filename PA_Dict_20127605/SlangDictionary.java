@@ -253,7 +253,7 @@ public class SlangDictionary {
 
     public void writeLogs(String CHANGELOG) {
         this.logs.add(CHANGELOG);
-        this.saveLogs("logs.txt", CHANGELOG);   
+        this.saveLogs("CHANGELOG", CHANGELOG);   
     }
 
     public ArrayList<String> quizBySlangWord() {
@@ -298,8 +298,8 @@ public class SlangDictionary {
 
     SlangDictionary() {
         this.sDict = new HashMap<String, ArrayList<String>>();
-        this.loadSlangDictionary("slang.txt");
-        this.logs = this.loadLogs("logs.txt");
+        this.loadSlangDictionary("program_slang.txt");
+        this.logs = this.loadLogs("CHANGELOG");
         this.keys = new ArrayList<String>(this.sDict.keySet());
     }
 
