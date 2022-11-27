@@ -121,7 +121,7 @@ public class SlangDictionary {
     //Save the slang dictionary file
     //This does not change the original slang dictionary file
     public Boolean saveSlangDictionary(String filename) {
-        String BACKTICK = "`", VERTICAL_LINE = "\\| ", NEWLINE = "\n";
+        String BACKTICK = "`", VERTICAL_LINE = "| ", NEWLINE = "\n";
         try {
             FileWriter fw = new FileWriter(filename);
             BufferedWriter bw = new BufferedWriter(fw);
