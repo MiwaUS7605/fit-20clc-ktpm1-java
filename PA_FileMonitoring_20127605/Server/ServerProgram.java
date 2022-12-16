@@ -11,11 +11,9 @@ import java.net.*;
 public class ServerProgram {
     
     private ServerSocket ssck;
-	private Socket sck;
-    private static DataInputStream dis;
-    private static DataOutputStream dos;
+    private static HashMap<String, ClientHandler> cMap = new HashMap<String, ClientHandler>();
     final static DefaultComboBoxModel<String> cbModel = new DefaultComboBoxModel<String>();
-
+    final static JComboBox<String> cb_clients = new JComboBox<String>(cbModel);
 
     public void addComponentToPane(Container pane) 
     {
@@ -27,13 +25,32 @@ public class ServerProgram {
         JButton btn_start = new JButton("Start");
         JTextField txfChatBox = new JTextField(20);
         
+
+        btn_start.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent evt) {
+                //Thread run
+            }
+        });
+
         txfChatBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
                 try {
+                    //Get selected client username
+                    String selected = cb_clients.getSelectedItem().toString();
+                    ClientHandler clh = cMap.get(selected);
+                    if (clh == null) {
+                        //No client
+                        return;
+                    }
+                    DataOutputStream dos = clh.getDOS();
+                    dos.writeUTF("CHAT");
                     dos.writeUTF(txfChatBox.getText());
                     dos.flush();
-                    txfChatBox.setText("");
+                    txfChatBox.setText("");                
+                        
+                    
                 }
                 catch(IOException exc) {
                     exc.getStackTrace();
@@ -41,8 +58,6 @@ public class ServerProgram {
             }
         });
 
-        JComboBox<String> cb_clients = new JComboBox<String>(cbModel);
-        
         titlePane.add(lb_title);
         functionPane.add(btn_start, BorderLayout.NORTH);
         functionPane.add(cb_clients, BorderLayout.CENTER);
@@ -53,48 +68,47 @@ public class ServerProgram {
         pane.add(botPane, BorderLayout.SOUTH);
     }
 
+
+
     private static void createAndShowGUI() 
     {
         JFrame frame = new JFrame("ServerControlPanel");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setResizable(false);
 
-        Thread t = new Thread() {
+        ServerProgram demo = new ServerProgram();
+        demo.addComponentToPane(frame.getContentPane());
+
+        frame.pack();
+        frame.setVisible(true);
+
+        try {
+            demo.ssck = new ServerSocket(3000);
+        }
+        catch(IOException exc) {
+            exc.printStackTrace();
+        }
+        //running new thread to connecting socket
+        //to isplaying javax.swing interface
+        new Thread() {
             public void run() {
-                try {
-                    ServerProgram demo = new ServerProgram();
-                    demo.addComponentToPane(frame.getContentPane());
-
-                    frame.pack();
-                    frame.setVisible(true);
-
-                    demo.ssck = new ServerSocket(3000);
-                    
-                    
-                    while (true) {
-                        demo.sck = demo.ssck.accept();
-                        dis = new DataInputStream(demo.sck.getInputStream());
-                        dos = new DataOutputStream(demo.sck.getOutputStream());
-                        cbModel.addElement(dis.readUTF());
-
-                        String receivedMessage = dis.readUTF();
-
-                        if (receivedMessage.equals("quit")) {
-                            dos.writeUTF("close");
-                            break;
-                        }
-                        else {
-                            
-                        }
+                while (true) {
+                    try {
+                        Socket sck = demo.ssck.accept();
+                        ClientHandler clh = new ClientHandler(sck, cbModel);
+                        
+                        String clientUsername = clh.getUsername();
+                        //Suppose client usernames are unique
+                        cMap.put(clientUsername, clh);
+                        cbModel.addElement(clientUsername);
+                        clh.start();
+                        
+                    } catch (IOException exc) {
+                        exc.printStackTrace();
                     }
-                    demo.sck.close();
-                }
-                catch(IOException exc) {
-                    exc.printStackTrace();
                 }
             }
-        };
-        t.start();
+        }.start();
     }
 
     public ServerProgram() {
