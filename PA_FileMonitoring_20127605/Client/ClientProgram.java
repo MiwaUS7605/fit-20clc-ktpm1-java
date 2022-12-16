@@ -41,13 +41,17 @@ public class ClientProgram {
         JOptionPane.showMessageDialog(null, "Successfully connect to server!", "NOTIFICATION", JOptionPane.INFORMATION_MESSAGE);
         this.dis = new DataInputStream(this.sck.getInputStream());
         this.dos = new DataOutputStream(this.sck.getOutputStream());
+        
+        //Write client_name to server(ClientHandler)
         this.dos.writeUTF(this.client_name);
+
         while (true) {
             String receivedString = this.dis.readUTF();
-            if (receivedString.equals("close")) {
+            if (receivedString.equals("DISCONNECT")) {
                 break;
             } 
-            else {
+            else if (receivedString.equals("CHAT")){
+                receivedString = this.dis.readUTF();
                 txaArea.setText(txaArea.getText() +
                         "Server: " + receivedString + "\n");
             }
@@ -69,7 +73,7 @@ public class ClientProgram {
         JTextField txf_port = new JTextField();
 
         JButton btn_submit = new JButton("Connect");
-    
+        
         btn_submit.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
@@ -107,7 +111,7 @@ public class ClientProgram {
         //ChatPanel
         JPanel titlePane = new JPanel();
         JPanel logPane = new JPanel();
-        JPanel botPane = new JPanel();
+        JPanel botPane = new JPanel(new BorderLayout());
 
         JLabel lb_title = new JLabel("Chat");
         lb_title.setAlignmentX(JLabel.CENTER);
@@ -119,23 +123,46 @@ public class ClientProgram {
         txfChatBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
-                txaArea.setText(txaArea.getText() + client_name + ": " + txfChatBox.getText() + "\n");
-                txfChatBox.setText("");
+                try {
+                    //Send command
+                    dos.writeUTF("CHAT");
+                    //Get message from chatbox and send it to the server
+                    String msg = txfChatBox.getText();
+                    dos.writeUTF(msg);
+                    //Update text area
+                    txaArea.setText(txaArea.getText() + client_name + ": " + msg + "\n");
+                    txfChatBox.setText("");
+                }
+                catch(IOException exc) {
+                    exc.printStackTrace();
+                }
 
             }
         });
-        JButton btn_quit = new JButton("Quit");
-        btn_quit.addActionListener(new ActionListener() {
+        JButton btn_disconnect = new JButton("DISCONNECT");
+        btn_disconnect.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent evt) {
-                CardLayout cl = (CardLayout)(cards.getLayout());
-                cl.show(cards, CONNECTPANEL);
+                try {
+                    //Send DISCONNECT command and client name
+                    dos.writeUTF("DISCONNECT");
+                    dos.writeUTF(client_name);
+                    //Close connection
+                    sck.close();
+                    //Change layout
+                    CardLayout cl = (CardLayout)(cards.getLayout());
+                    cl.show(cards, CONNECTPANEL);
+                }
+                catch(IOException exc) {
+                    exc.printStackTrace();
+                }
             }
         });
 
         titlePane.add(lb_title);
         logPane.add(scpScroller);
-        botPane.add(txfChatBox);
+        botPane.add(txfChatBox, BorderLayout.NORTH);
+        botPane.add(btn_disconnect, BorderLayout.CENTER);
         
         chatCard.add(titlePane, BorderLayout.NORTH);
         chatCard.add(logPane, BorderLayout.CENTER);
@@ -157,11 +184,19 @@ public class ClientProgram {
         ClientProgram demo = new ClientProgram();
         demo.addComponentToPane(frame.getContentPane());
 
+        frame.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent evt) {
+                //Do something
+            } 
+        });
+
         frame.pack();
         frame.setVisible(true);
     }
 
     public ClientProgram() {
+
     }
 
 
